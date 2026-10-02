@@ -1,13 +1,13 @@
 package com.mycompany.reguistros.dominio.excepcion;
 
-public class CupoAgotadoException extends ReglaDeNegocioException {
+public final class CupoAgotadoException extends ReglaDeNegocioException {
 
     private CupoAgotadoException(String mensaje) {
         super(mensaje);
     }
 
     public static CupoAgotadoException en(String codigoCurso, int cupo, int matriculados) {
-        return new CupoAgotadoException("El curso " + codigoCurso + " no tiene plazas disponibles: cupo "
-                + matriculados + " de " + cupo);
+        return new CupoAgotadoException(
+                "El curso %s está completo: %d de %d plazas ocupadas".formatted(codigoCurso, matriculados, cupo));
     }
 }

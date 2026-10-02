@@ -3,6 +3,7 @@ package com.mycompany.reguistros;
 import com.mycompany.reguistros.aplicacion.MatriculaService;
 import com.mycompany.reguistros.presentacion.ConsolaMatriculas;
 import com.mycompany.reguistros.presentacion.DemoAceptacion;
+import com.mycompany.reguistros.presentacion.Tema;
 import com.mycompany.reguistros.presentacion.VentanaMatriculas;
 import com.mycompany.reguistros.repositorio.memoria.CursoEnMemoriaRepository;
 import com.mycompany.reguistros.repositorio.memoria.EstudianteEnMemoriaRepository;
@@ -21,6 +22,7 @@ public class Reguistros {
             new ConsolaMatriculas(servicio).iniciar();
         } else {
             DemoAceptacion.cargar(servicio);
+            Tema.preparar();
             SwingUtilities.invokeLater(() -> new VentanaMatriculas(servicio).setVisible(true));
         }
     }

@@ -1,6 +1,6 @@
 package com.mycompany.reguistros.dominio.excepcion;
 
-public class MatriculaNoEncontradaException extends ReglaDeNegocioException {
+public final class MatriculaNoEncontradaException extends ReglaDeNegocioException {
 
     private MatriculaNoEncontradaException(String mensaje) {
         super(mensaje);
@@ -8,6 +8,6 @@ public class MatriculaNoEncontradaException extends ReglaDeNegocioException {
 
     public static MatriculaNoEncontradaException entre(String codigoEstudiante, String codigoCurso) {
         return new MatriculaNoEncontradaException(
-                "El estudiante " + codigoEstudiante + " no está matriculado en el curso " + codigoCurso);
+                "El estudiante %s no está matriculado en el curso %s".formatted(codigoEstudiante, codigoCurso));
     }
 }

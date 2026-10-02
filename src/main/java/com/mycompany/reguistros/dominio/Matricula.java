@@ -13,13 +13,13 @@ public class Matricula {
 
     public Matricula(Estudiante estudiante, Curso curso, LocalDate fecha) {
         if (estudiante == null) {
-            throw new DatosInvalidosException("La matrícula requiere un estudiante");
+            throw DatosInvalidosException.de("La matrícula requiere un estudiante");
         }
         if (curso == null) {
-            throw new DatosInvalidosException("La matrícula requiere un curso");
+            throw DatosInvalidosException.de("La matrícula requiere un curso");
         }
         if (fecha == null) {
-            throw new DatosInvalidosException("La matrícula requiere una fecha");
+            throw DatosInvalidosException.de("La matrícula requiere una fecha");
         }
         this.estudiante = estudiante;
         this.curso = curso;

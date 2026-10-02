@@ -13,7 +13,7 @@ public class Curso {
         this.codigo = Codigos.normalizarCodigo(codigo, "código de curso");
         this.nombre = Codigos.normalizarTexto(nombre, "nombre del curso");
         if (cupo < 0) {
-            throw new DatosInvalidosException("El cupo del curso no puede ser negativo: " + cupo);
+            throw DatosInvalidosException.cupoNegativo(cupo);
         }
         this.cupo = cupo;
     }
@@ -36,7 +36,7 @@ public class Curso {
 
     public void setCupo(int cupo) {
         if (cupo < 0) {
-            throw new DatosInvalidosException("El cupo del curso no puede ser negativo: " + cupo);
+            throw DatosInvalidosException.cupoNegativo(cupo);
         }
         this.cupo = cupo;
     }

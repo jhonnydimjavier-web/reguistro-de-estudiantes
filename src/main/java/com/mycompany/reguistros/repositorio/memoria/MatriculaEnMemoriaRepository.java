@@ -33,7 +33,7 @@ public class MatriculaEnMemoriaRepository implements MatriculaRepository {
     public List<Matricula> listarPorEstudiante(String codigoEstudiante) {
         String codigo = Codigos.normalizarCodigo(codigoEstudiante, "código de estudiante");
         return matriculas.values().stream()
-                .filter(matricula -> matricula.getId().getCodigoEstudiante().equals(codigo))
+                .filter(matricula -> matricula.getId().codigoEstudiante().equals(codigo))
                 .toList();
     }
 
@@ -41,7 +41,7 @@ public class MatriculaEnMemoriaRepository implements MatriculaRepository {
     public List<Matricula> listarPorCurso(String codigoCurso) {
         String codigo = Codigos.normalizarCodigo(codigoCurso, "código de curso");
         return matriculas.values().stream()
-                .filter(matricula -> matricula.getId().getCodigoCurso().equals(codigo))
+                .filter(matricula -> matricula.getId().codigoCurso().equals(codigo))
                 .toList();
     }
 

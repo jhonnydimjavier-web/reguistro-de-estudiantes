@@ -21,7 +21,7 @@ public class ConsolaMatriculas {
         boolean activo = true;
         while (activo) {
             mostrarMenu();
-            String opcion = pedir("Opcion").trim();
+            String opcion = pedir("Opción").trim();
             switch (opcion) {
                 case "1" -> registrarEstudiante();
                 case "2" -> registrarCurso();
@@ -34,7 +34,7 @@ public class ConsolaMatriculas {
                 case "9" -> listarEstudiantes();
                 case "10" -> listarCursos();
                 case "0" -> activo = false;
-                default -> System.out.println("Opcion no valida.");
+                default -> System.out.println("Opción no válida.");
             }
             if (activo) {
                 System.out.println();
@@ -44,23 +44,22 @@ public class ConsolaMatriculas {
     }
 
     private void mostrarMenu() {
-        System.out.println("--- MENU PRINCIPAL ---");
-        System.out.println(" 1. Registrar estudiante");
-        System.out.println(" 2. Registrar curso");
-        System.out.println(" 3. Buscar estudiante");
-        System.out.println(" 4. Buscar curso");
-        System.out.println(" 5. Matricular estudiante en curso");
-        System.out.println(" 6. Retirar matricula");
-        System.out.println(" 7. Listar cursos de un estudiante");
-        System.out.println(" 8. Listar estudiantes de un curso");
-        System.out.println(" 9. Listar todos los estudiantes");
-        System.out.println("10. Listar todos los cursos");
-        System.out.println(" 0. Salir");
+        System.out.println("""
+
+                +------------------- MENU PRINCIPAL -------------------+
+                  1. Registrar estudiante          6. Retirar matrícula
+                  2. Registrar curso               7. Listar cursos de un estudiante
+                  3. Buscar estudiante             8. Listar estudiantes de un curso
+                  4. Buscar curso                  9. Listar todos los estudiantes
+                  5. Matricular estudiante         10. Listar todos los cursos
+                  0. Salir
+                +--------------------------------------------------------+
+                """);
     }
 
     private void registrarEstudiante() {
         ejecutar(() -> {
-            String codigo = pedir("Codigo del estudiante");
+            String codigo = pedir("Código del estudiante");
             String nombre = pedir("Nombre del estudiante");
             System.out.println("Registrado: " + servicio.registrarEstudiante(codigo, nombre));
         });
@@ -68,7 +67,7 @@ public class ConsolaMatriculas {
 
     private void registrarCurso() {
         ejecutar(() -> {
-            String codigo = pedir("Codigo del curso");
+            String codigo = pedir("Código del curso");
             String nombre = pedir("Nombre del curso");
             int cupo = pedirEntero("Cupo del curso");
             System.out.println("Registrado: " + servicio.registrarCurso(codigo, nombre, cupo));
@@ -77,43 +76,43 @@ public class ConsolaMatriculas {
 
     private void buscarEstudiante() {
         ejecutar(() -> {
-            String codigo = pedir("Codigo del estudiante");
+            String codigo = pedir("Código del estudiante");
             servicio.buscarEstudiante(codigo)
                     .ifPresentOrElse(
                             estudiante -> System.out.println("Encontrado: " + estudiante),
-                            () -> System.out.println("No existe un estudiante con ese codigo."));
+                            () -> System.out.println("No existe un estudiante con ese código."));
         });
     }
 
     private void buscarCurso() {
         ejecutar(() -> {
-            String codigo = pedir("Codigo del curso");
+            String codigo = pedir("Código del curso");
             servicio.buscarCurso(codigo)
                     .ifPresentOrElse(
                             curso -> System.out.println("Encontrado: " + curso),
-                            () -> System.out.println("No existe un curso con ese codigo."));
+                            () -> System.out.println("No existe un curso con ese código."));
         });
     }
 
     private void matricular() {
         ejecutar(() -> {
-            String codigoEstudiante = pedir("Codigo del estudiante");
-            String codigoCurso = pedir("Codigo del curso");
+            String codigoEstudiante = pedir("Código del estudiante");
+            String codigoCurso = pedir("Código del curso");
             System.out.println("Matriculado: " + servicio.matricular(codigoEstudiante, codigoCurso));
         });
     }
 
     private void retirar() {
         ejecutar(() -> {
-            String codigoEstudiante = pedir("Codigo del estudiante");
-            String codigoCurso = pedir("Codigo del curso");
+            String codigoEstudiante = pedir("Código del estudiante");
+            String codigoCurso = pedir("Código del curso");
             System.out.println("Retirada: " + servicio.retirar(codigoEstudiante, codigoCurso));
         });
     }
 
     private void listarCursosDeEstudiante() {
         ejecutar(() -> {
-            String codigo = pedir("Codigo del estudiante");
+            String codigo = pedir("Código del estudiante");
             List<Curso> cursos = servicio.listarCursos(codigo);
             System.out.println("Cursos de " + codigo + (cursos.isEmpty() ? ": ninguno" : ": " + cursos));
         });
@@ -121,7 +120,7 @@ public class ConsolaMatriculas {
 
     private void listarEstudiantesDeCurso() {
         ejecutar(() -> {
-            String codigo = pedir("Codigo del curso");
+            String codigo = pedir("Código del curso");
             List<Estudiante> estudiantes = servicio.listarEstudiantes(codigo);
             System.out.println(
                     "Estudiantes de " + codigo + (estudiantes.isEmpty() ? ": ninguno" : ": " + estudiantes));
@@ -166,7 +165,7 @@ public class ConsolaMatriculas {
             try {
                 return Integer.parseInt(pedir(mensaje));
             } catch (NumberFormatException excepcion) {
-                System.out.println("Ingrese un numero entero valido.");
+                System.out.println("Ingrese un número entero válido.");
             }
         }
     }

@@ -1,12 +1,12 @@
 package com.mycompany.reguistros.dominio.excepcion;
 
-public class EstudianteYaRegistradoException extends ReglaDeNegocioException {
+public final class EstudianteYaRegistradoException extends ReglaDeNegocioException {
 
     private EstudianteYaRegistradoException(String mensaje) {
         super(mensaje);
     }
 
     public static EstudianteYaRegistradoException de(String codigo) {
-        return new EstudianteYaRegistradoException("Ya existe un estudiante con el código " + codigo);
+        return new EstudianteYaRegistradoException("Ya existe un estudiante con el código %s".formatted(codigo));
     }
 }

@@ -2,14 +2,16 @@
 
 Aplicación de gestión de matrículas para una institución durante un periodo académico: registra
 estudiantes y cursos, matricula y retira matrículas, y consulta las relaciones entre ambos.
+Hecha en **Java 25** sin dependencias externas (JUnit 5 solo para los tests) y con una
+interfaz Swing de estilo plano, con tema claro y oscuro.
 
 ## Modelo de dominio
 
-| Entidad            | Atributos                    | Identidad                    |
-|--------------------|------------------------------|------------------------------|
-| `Estudiante`       | `codigo`, `nombre`            | `codigo` (único)             |
-| `Curso`            | `codigo`, `nombre`, `cupo`   | `codigo` (único)             |
-| `Matricula`        | `estudiante`, `curso`, `fecha` | compuesta `MatriculaId` (`codigoEstudiante \| codigoCurso`) |
+| Entidad       | Atributos                      | Identidad                                                |
+|---------------|--------------------------------|----------------------------------------------------------|
+| `Estudiante`  | `codigo`, `nombre`             | `codigo` (único)                                          |
+| `Curso`       | `codigo`, `nombre`, `cupo`     | `codigo` (único)                                          |
+| `Matricula`   | `estudiante`, `curso`, `fecha` | compuesta `MatriculaId` (`codigoEstudiante \| codigoCurso`) |
 
 La matrícula no tiene código propio: su identidad es la pareja (`codigoEstudiante`, `codigoCurso`),
 por eso se modela como una **relación con identidad compuesta**.
@@ -23,7 +25,7 @@ por eso se modela como una **relación con identidad compuesta**.
 5. Listar los cursos de un estudiante.
 6. Listar los estudiantes de un curso.
 7. Listar todos los estudiantes y todos los cursos.
-8. (GUI) Ver estudiantes, cursos y matrículas como tablas en una ventana Swing.
+8. Filtrar estudiantes, cursos y matrículas desde la ventana.
 
 ## Contrato de `MatriculaService`
 
@@ -45,8 +47,9 @@ por eso se modela como una **relación con identidad compuesta**.
 
 - **Repositorios en memoria por código**: `Map<String, Estudiante>` y `Map<String, Curso>` con
   `LinkedHashMap`, para conservar el orden de ingreso y que las consultas sean deterministas.
-- **Identidad compuesta de la matrícula**: `MatriculaId` como objeto de valor que normaliza ambos
-  códigos y define `equals`/`hashCode`; el repositorio de matrículas usa `Map<MatriculaId, Matricula>`.
+- **Identidad compuesta de la matrícula**: `MatriculaId` es un `record` que normaliza ambos
+  códigos y define `equals`/`hashCode`; el repositorio de matrículas usa
+  `Map<MatriculaId, Matricula>`.
 - **Normalización de códigos** (`Codigos`): los códigos se recortan y convierten a mayúsculas en el
   límite del dominio, así `e001` y `E001` refieren a la misma entidad y la identidad compuesta es fiable.
 - **Reglas de negocio en el servicio de aplicación**, no en los repositorios: los repositorios solo
@@ -59,7 +62,24 @@ por eso se modela como una **relación con identidad compuesta**.
   El duplicado se valida primero porque un estudiante ya matriculado en un curso lleno debe recibir
   "matrícula duplicada", no "cupo agotado".
 - **Entidades con igualdad por identidad**: dos estudiantes con el mismo código son la misma entidad,
-  aunque cambie el nombre.
+  aunque cambie el nombre. Por eso `Estudiante`, `Curso` y `Matricula` son clases y no `records`:
+  tienen estado mutable (`setNombre`, `setCupo`) y su igualdad no es estructural.
+- **Errores de dominio cerrados**: `ReglaDeNegocioException` es `sealed` y declara sus nueve
+  subtipos en `permits`, así la interfaz puede hacer un `switch` **exhaustivo** sobre el fallo
+  concreto y explicar qué hacer, sin `default`. Si se añade una excepción nueva, el compilador
+  avisa del `switch` que hay que actualizar.
+
+## Lenguaje moderno usado (Java 25)
+
+| Recurso | Dónde |
+|---------|-------|
+| `record` | `MatriculaId` (valor con identidad compuesta), `DemoAceptacion.EstudianteDemo`/`CursoDemo`/`MatriculaDemo` y los datos de ejemplo del formulario. |
+| `sealed` + `permits` | Jerarquía `ReglaDeNegocioException`. |
+| `switch` con pattern matching | `VentanaMatriculas.consejo(...)`, exhaustivo sobre la jerarquía sellada. |
+| Expresiones `switch` | Menú de la consola y resolución del color de los botones y del pie. |
+| Bloques de texto (`"""`) | Menú de la consola y salidas de la demo de aceptación. |
+| `String.formatted` | Mensajes del dominio, de las excepciones y de la ventana. |
+| Instancias de interfaz sin `public` | `Campo`, `TablaEstilo`, `Indicador`, `BarraDesplazamiento`. |
 
 ## Reglas de negocio
 
@@ -93,13 +113,34 @@ Este escenario se reproduce automáticamente al ejecutar el programa y está cub
 - Códigos duplicados al registrar y datos obligatorios vacíos.
 - Búsqueda de entidades inexistentes.
 
+## La ventana
+
+- **Tema claro y oscuro** desde el botón de la esquina superior derecha.
+- **Tarjetas** con esquinas redondeadas para cada tabla y cada grupo del formulario; sin cuadrícula,
+  con filas en zigzag y la fila del ratón resaltada.
+- **Indicadores** arriba: estudiantes, cursos, matrículas y plazas libres, más un resumen con los
+  cursos que ya están completos.
+- **Búsqueda** que filtra las tres tablas a la vez, indicando `visibles / total` en cada tarjeta.
+- **Un clic** en una fila de *Estudiantes* o *Cursos* deja el código en el formulario de matrícula;
+  en *Matrículas* rellena ambos códigos para poder retirarla. **Doble clic** en *Matrículas* deja
+  los parámetros listos para retirar.
+- **Enter** confirma la acción del campo donde estés escribiendo.
+- Los **errores no abren cuadros de diálogo**: aparecen en la barra de pie con un punto de color
+  (rojo, verde o azul) y una recomendación según el tipo de fallo.
+
+## Datos de ejemplo
+
+Al abrir la ventana se cargan 8 estudiantes, 7 cursos y 15 matrículas que dejan a la vista casos
+interesantes de todas las reglas: `POO` y `RED` están al 100 % de su cupo, `ALG` tiene cupo 0,
+`E007` ya tiene los 3 cursos activos que permite la regla y `E008` todavía no tiene ninguna.
+
 ## Cómo compilar, probar y ejecutar
 
 ```bash
 # Compilar y ejecutar los 29 tests
 mvn -o test
 
-# Ejecutar la aplicación: abre la ventana Swing con las tablas de datos
+# Ejecutar la aplicación: abre la ventana Swing
 mvn -o exec:java
 # o bien
 java -cp target/classes com.mycompany.reguistros.Reguistros
@@ -111,10 +152,8 @@ java -cp target/classes com.mycompany.reguistros.Reguistros --consola
 Si `mvn` no está en el PATH, use el que incluye NetBeans:
 `C:\Program Files\Apache NetBeans\java\maven\bin\mvn.cmd`.
 
-En NetBeans: abra el proyecto y presione **Run** (o `Shift+F6`) para ver la ventana con las
-tres tablas (estudiantes, cursos, matrículas); los botones permiten registrar, matricular y
-retirar, y las tablas se refrescan tras cada operación. Los errores de reglas se muestran en
-cuadros de diálogo.
+En NetBeans: abra el proyecto y presione **Run** (o `Shift+F6`). El divisor vertical entre las
+tablas y las matrículas se puede arrastrar; la separación entre *Estudiantes* y *Cursos* es fija.
 
 ## Estructura del proyecto
 
@@ -123,10 +162,21 @@ src/main/java/com/mycompany/reguistros/
   Reguistros.java                 # punto de entrada (GUI por defecto, --consola alternativo)
   aplicacion/MatriculaService.java# casos de uso y reglas de negocio
   dominio/                        # Estudiante, Curso, Matricula, MatriculaId, Codigos
-  dominio/excepcion/              # jerarquia de excepciones del dominio
+  dominio/excepcion/              # jerarquía sellada de excepciones del dominio
   repositorio/                    # puertos (interfaces) de persistencia
   repositorio/memoria/            # implementaciones en memoria con Map
-  presentacion/                   # VentanaMatriculas (GUI), DemoAceptacion, ConsolaMatriculas
+  presentacion/
+    VentanaMatriculas.java        # GUI: arma la ventana y conecta los eventos
+    Tema.java                     # paleta clara/oscura y tipografía
+    PanelRedondeado.java          # tarjeta con esquinas redondeadas
+    Boton.java                    # botón plano con variantes
+    CampoTexto.java               # campo con borde que se ilumina y texto de ayuda
+    TablaEstilo.java              # tabla sin cuadrícula, con zigzag y fila resaltada
+    Indicador.java                # tarjeta de cifra de resumen
+    Rotulo.java                   # etiqueta que resuelve el color del tema al pintar
+    BarraDesplazamiento.java      # barra fina sin botones
+    DemoAceptacion.java           # escenario de aceptación y datos de ejemplo
+    ConsolaMatriculas.java        # menú interactivo por consola
 
 src/test/java/...                 # tests (JUnit 5)
 ```

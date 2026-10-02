@@ -85,7 +85,7 @@ public class MatriculaService {
         MatriculaId id = new MatriculaId(estudiante.getCodigo(), curso.getCodigo());
 
         if (matriculas.existePorId(id)) {
-            throw MatriculaDuplicadaException.entre(id.getCodigoEstudiante(), id.getCodigoCurso());
+            throw MatriculaDuplicadaException.entre(id.codigoEstudiante(), id.codigoCurso());
         }
 
         int matriculados = matriculas.listarPorCurso(curso.getCodigo()).size();
@@ -106,7 +106,7 @@ public class MatriculaService {
         MatriculaId id = new MatriculaId(codigoEstudiante, codigoCurso);
         Matricula matricula = matriculas.buscarPorId(id)
                 .orElseThrow(() -> MatriculaNoEncontradaException.entre(
-                        id.getCodigoEstudiante(), id.getCodigoCurso()));
+                        id.codigoEstudiante(), id.codigoCurso()));
         matriculas.eliminar(id);
         return matricula;
     }
